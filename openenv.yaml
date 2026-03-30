@@ -1,0 +1,23 @@
+name: hospital_env
+version: 1.0.0
+description: Hospital Resource Allocation Environment
+
+tasks:
+  - id: easy
+    name: Easy Task
+    description: 3 patients, 3 beds
+    difficulty: easy
+  
+  - id: medium
+    name: Medium Task
+    description: 5 patients, 3 beds
+    difficulty: medium
+  
+  - id: hard
+    name: Hard Task
+    description: 10 patients, 2 beds
+    difficulty: hard
+
+server:
+  port: 7860
+  host: 0.0.0.0
