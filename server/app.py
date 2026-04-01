@@ -5,47 +5,10 @@ import random
 
 app = FastAPI()
 
-# -------------------------------
-# GLOBAL STATE
-# -------------------------------
+
 state_data = {}
 
-# -------------------------------
-# HOME
-# -------------------------------
-@app.get("/")
-def home():
-    return {"message": "Hospital Environment Running"}
 
-# -------------------------------
-# WEB UI (HF Spaces REQUIRED)
-# -------------------------------
-@app.get("/web", response_class=HTMLResponse)
-def web_ui():
-    return """
-    <html>
-        <head><title>Hospital Env</title></head>
-        <body>
-            <h1>🏥 Hospital Resource Allocation</h1>
-            <p>🎯 Allocate beds efficiently to treat patients</p>
-            <ul>
-                <li><a href="/docs">API Docs</a></li>
-                <li><a href="/health">Health Check</a></li>
-            </ul>
-        </body>
-    </html>
-    """
-
-# -------------------------------
-# HEALTH
-# -------------------------------
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
-
-# -------------------------------
-# RESET
-# -------------------------------
 @app.post("/reset")
 def reset():
     global state_data
@@ -54,25 +17,34 @@ def reset():
 
     if difficulty == "easy":
         beds = 10
-        patients = 5
+        num_patients = 5
     elif difficulty == "medium":
         beds = 8
-        patients = 8
+        num_patients = 8
     else:
         beds = 5
-        patients = 10
+        num_patients = 10
+
+    # Create patients with severity
+    patients = []
+    for i in range(num_patients):
+        severity = random.choice(["low", "medium", "high"])
+        patients.append({
+            "id": i,
+            "severity": severity
+        })
 
     state_data = {
         "beds": beds,
         "patients": patients,
         "step": 0,
+        "time": 5,
         "difficulty": difficulty
     }
 
     return {
         "observation": state_data,
         "reward": 0.0,
-        "score": 0.0,
         "done": False,
         "task": difficulty
     }
@@ -90,45 +62,69 @@ class Action(BaseModel):
 def step(action: Action):
     global state_data
 
-    allocate = action.allocate
     beds = state_data["beds"]
     patients = state_data["patients"]
 
-    # Prevent invalid allocation
-    allocate = max(0, min(allocate, beds))
+    allocate = min(action.allocate, beds)
+    treated = patients[:allocate]
+    remaining = patients[allocate:]
 
-    state_data["step"] += 1
+    reward = 0
+
+    # -------------------------------
+    # REWARD BASED ON SEVERITY
+    # -------------------------------
+    for p in treated:
+        if p["severity"] == "high":
+            reward += 3
+        elif p["severity"] == "medium":
+            reward += 2
+        else:
+            reward += 1
+
+    # -------------------------------
+    # PENALTIES
+    # -------------------------------
+    unused_beds = beds - allocate
+    reward -= unused_beds * 0.5
+
+    reward -= len(remaining) * 1.5
+
+    # -------------------------------
+    # TIME PRESSURE
+    # -------------------------------
+    state_data["time"] -= 1
+    if state_data["time"] <= 0:
+        reward -= 5
+
+    # -------------------------------
+    # UPDATE STATE
+    # -------------------------------
     state_data["beds"] -= allocate
-    state_data["patients"] -= allocate
+    state_data["patients"] = remaining
+    state_data["step"] += 1
+
+    # Dynamic new patients
+    new_patients = random.randint(0, 2)
+    for _ in range(new_patients):
+        state_data["patients"].append({
+            "id": random.randint(100, 999),
+            "severity": random.choice(["low", "medium", "high"])
+        })
 
     # -------------------------------
-    # REWARD LOGIC
+    # DONE CONDITION
     # -------------------------------
-    if allocate == 0:
-        reward = -0.5
-    elif allocate > patients:
-        reward = -1.0
-    else:
-        reward = allocate * 1.0
-
-    # Bonus if completed
-    if state_data["patients"] <= 0:
-        reward += 5.0
+    done = (
+        state_data["step"] >= 5
+        or len(state_data["patients"]) == 0
+        or state_data["beds"] <= 0
+    )
 
     # -------------------------------
     # GRADER (0 → 1 score)
     # -------------------------------
-    max_reward = 10.0
-    score = max(0.0, min(1.0, reward / max_reward))
-
-    # -------------------------------
-    # DONE
-    # -------------------------------
-    done = (
-        state_data["step"] >= 5
-        or state_data["patients"] <= 0
-        or state_data["beds"] <= 0
-    )
+    score = max(0.0, min(1.0, reward / 20.0))
 
     return {
         "observation": state_data,
@@ -143,3 +139,38 @@ def step(action: Action):
 @app.get("/state")
 def state():
     return state_data
+
+# -------------------------------
+# HEALTH
+# -------------------------------
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+# -------------------------------
+# HOME
+# -------------------------------
+@app.get("/")
+def home():
+    return {"message": "Hospital Environment Running"}
+
+# -------------------------------
+# WEB UI
+# -------------------------------
+@app.get("/web", response_class=HTMLResponse)
+def web_ui():
+    return """
+    <html>
+        <head><title>Hospital Env</title></head>
+        <body>
+            <h1>🏥 Hospital Resource Allocation </h1>
+            <p>🚑 Patients have priority levels</p>
+            <p>⏱ Time pressure + dynamic arrivals</p>
+            <p>📊 Reward based on efficiency</p>
+            <ul>
+                <li><a href="/docs">API Docs</a></li>
+                <li><a href="/health">Health</a></li>
+            </ul>
+        </body>
+    </html>
+    """

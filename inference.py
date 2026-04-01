@@ -2,38 +2,44 @@ import requests
 
 BASE_URL = "https://msathish-hospital-env.hf.space"
 
-# -------------------------------
-# RESET ENVIRONMENT
-# -------------------------------
-response = requests.post(f"{BASE_URL}/reset")
-data = response.json()
+def smart_agent():
+    res = requests.post(f"{BASE_URL}/reset")
+    data = res.json()
 
-print("🔄 RESET ENVIRONMENT")
-print("Initial State:", data)
+    total_reward = 0
 
-done = False
-step_count = 0
+    while True:
+        obs = data["observation"]
 
-# -------------------------------
-# SIMPLE AGENT LOOP
-# -------------------------------
-while not done:
-    step_count += 1
+        beds = obs["beds"]
+        patients = obs["patients"]
 
-    # Simple strategy
-    action = {
-        "allocate": 2
-    }
+        # prioritize high severity
+        high = [p for p in patients if p["severity"] == "high"]
+        medium = [p for p in patients if p["severity"] == "medium"]
 
-    response = requests.post(f"{BASE_URL}/step", json=action)
-    data = response.json()
+        if len(high) > 0:
+            allocate = min(len(high), beds)
+        elif len(medium) > 0:
+            allocate = min(len(medium), beds)
+        else:
+            allocate = min(len(patients), beds)
 
-    print(f"\n➡ Step {step_count}")
-    print("Observation:", data["observation"])
-    print("Reward:", data["reward"])
-    print("Score:", data.get("score", "N/A"))  # Important
-    print("Done:", data["done"])
+        res = requests.post(
+            f"{BASE_URL}/step",
+            json={"allocate": allocate}
+        )
 
-    done = data["done"]
+        data = res.json()
+        total_reward += data["reward"]
 
-print("\n🏁 EPISODE FINISHED")
+        print(f"Step Reward: {data['reward']} | Score: {data['score']}")
+
+        if data["done"]:
+            break
+
+    print("\nFinal Reward:", total_reward)
+
+
+if __name__ == "__main__":
+    smart_agent()
