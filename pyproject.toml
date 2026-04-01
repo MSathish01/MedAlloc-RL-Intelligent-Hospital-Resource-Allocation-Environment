@@ -1,0 +1,17 @@
+[project]
+name = "hospital-env"
+version = "0.1.0"
+description = "Hospital Resource Allocation Environment"
+authors = [
+    { name = "Sathish" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

@@ -1,135 +1,48 @@
-# 🏥 Hospital Resource Allocation Environment (OpenEnv)
-
-## 📌 Overview
-
-This project simulates a **real-world hospital resource allocation problem** using the OpenEnv framework.
-
-An AI agent must decide how to allocate limited hospital beds to incoming patients efficiently, maximizing rewards while minimizing waste.
-
 ---
-
-## 🎯 Problem Statement
-
-Efficient allocation of hospital resources is critical in real-world healthcare systems.
-This environment models:
-
-* Limited beds
-* Varying patient load
-* Decision-based allocation
-
+title: hospital-env
+emoji: 🏥
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
 ---
+# Hospital Resource Allocation Environment
 
-## ⚙️ Environment Design
+A simulation environment for hospital resource allocation using OpenEnv.
 
-### 🔹 State
+## Features
+- 3 difficulty levels
+- Realistic patient severity scoring
+- Bed allocation logic
+- FastAPI server
 
-* `beds` → Available hospital beds
-* `patients` → Patients waiting
-* `step` → Current step count
-* `difficulty` → easy / medium / hard
-
----
-
-### 🔹 Actions
-
-```json
-{
-  "allocate": <number_of_beds_to_assign>
-}
-```
-
----
-
-### 🔹 Tasks (Difficulty Levels)
-
-| Level  | Beds | Patients | Description         |
-| ------ | ---- | -------- | ------------------- |
-| Easy   | 10   | 5        | Plenty of resources |
-| Medium | 8    | 8        | Balanced            |
-| Hard   | 5    | 10       | Resource scarcity   |
-
----
-
-## 🧠 Reward Function
-
-| Condition            | Reward         |
-| -------------------- | -------------- |
-| Correct allocation   | +1 per patient |
-| No allocation        | -0.5           |
-| Over allocation      | -1             |
-| All patients treated | +5 bonus       |
-
----
-
-## 📊 Grading System
-
-Score is normalized between **0.0 → 1.0**:
-
-```python
-score = max(0.0, min(1.0, reward / 10.0))
-```
-
----
-
-## 🔌 API Endpoints
-
-| Endpoint  | Method | Description       |
-| --------- | ------ | ----------------- |
-| `/reset`  | POST   | Start new episode |
-| `/step`   | POST   | Perform action    |
-| `/state`  | GET    | Get current state |
-| `/health` | GET    | Health check      |
-| `/web`    | GET    | UI page           |
-| `/docs`   | GET    | API documentation |
-
----
-
-## 🚀 Deployment
-
-Live API:
-👉 https://msathish-hospital-env.hf.space
-
-Swagger Docs:
-👉 https://msathish-hospital-env.hf.space/docs
-
----
-
-## 🧪 Run Inference (Baseline Agent)
+## Installation
 
 ```bash
-python inference.py
+pip install fastapi uvicorn requests
 ```
 
----
+## Run Locally
 
-## 📦 Tech Stack
+```bash
+uvicorn server.app:app --reload
+```
 
-* FastAPI
-* OpenEnv Framework
-* Hugging Face Spaces
-* Python
+## API Endpoints
 
----
+- GET /health - Check server status
+- POST /reset - Reset environment
+- POST /step - Take action step
+- GET /state - Get current state
 
-## 🏆 Key Features
+## Tasks
 
-* Real-world simulation
-* Multiple difficulty levels
-* Reward shaping
-* Normalized grading system
-* Deployable API
+- Easy: 3 patients, 3 beds
+- Medium: 5 patients, 3 beds
+- Hard: 10 patients, 2 beds
 
----
+## Reward System
 
-## 📌 Future Improvements
-
-* Smarter RL agent
-* Dynamic patient arrival
-* Multi-hospital system
-* Priority-based allocation
-
----
-
-## 👤 Author
-
-Sathish
+- Severity 4+: 1.0 reward
+- Severity 2-3: 0.7 reward
+- Severity 0-1: 0.3 reward
