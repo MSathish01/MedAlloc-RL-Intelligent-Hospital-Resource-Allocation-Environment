@@ -1,14 +1,4 @@
-﻿---
-title: MedAlloc RL
-emoji: 🏥
-colorFrom: blue
-colorTo: green
-sdk: gradio
-sdk_version: 4.x.x
-app_file: app.py
-pinned: false
----
-# MedAlloc RL
+﻿# MedAlloc RL
 
 Hospital Resource Allocation...
 # Hospital Resource Allocation Environment

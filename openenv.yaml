@@ -1,4 +1,9 @@
-﻿name: hospital_env
+﻿hf:
+  title: MedAlloc RL
+  colorFrom: blue
+  colorTo: green
+  
+name: hospital_env
 version: 2.0.0
 description: >
   MedAlloc-RL: Hospital Resource Allocation Reinforcement Learning Environment.
