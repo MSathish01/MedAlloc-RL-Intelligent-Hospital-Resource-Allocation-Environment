@@ -1,23 +1,85 @@
 name: hospital_env
-version: 1.0.0
-description: Hospital Resource Allocation Environment
+version: 2.0.0
+description: >
+  MedAlloc-RL: Hospital Resource Allocation Reinforcement Learning Environment.
+  An AI agent allocates limited hospital beds to patients with varying severity
+  levels under time pressure. Features emergency arrivals, patient deterioration,
+  and priority-based triage across three difficulty levels.
 
 tasks:
   - id: easy
-    name: Easy Task
-    description: 3 patients, 3 beds
+    name: Basic Allocation
+    description: >
+      5 patients, 10 beds. Agent learns priority-based allocation.
+      Plenty of beds available — focus is on learning to treat
+      high-severity patients first.
     difficulty: easy
-  
+    max_steps: 5
+    scoring: >
+      0.0 to 1.0 based on severity-weighted treatment rate.
+      High severity treated = +3.0, medium = +2.0, low = +1.0.
+      Wasted beds penalized at -0.3 each.
+
   - id: medium
-    name: Medium Task
-    description: 5 patients, 3 beds
+    name: Balanced Pressure
+    description: >
+      8 patients, 8 beds. Exact parity between patients and beds means
+      every allocation decision matters. Emergency arrivals begin.
     difficulty: medium
-  
+    max_steps: 5
+    scoring: >
+      0.0 to 1.0. Untreated high-severity patients penalized at -2.0.
+      Emergency patients untreated: additional -1.5 penalty.
+      Patient deterioration can occur after 2 waiting steps.
+
   - id: hard
-    name: Hard Task
-    description: 10 patients, 2 beds
+    name: Crisis Mode
+    description: >
+      10 patients, 5 beds. Severe scarcity — agent must make tough
+      triage decisions. Emergency arrivals, patient deterioration,
+      and dynamic new arrivals make this highly challenging.
     difficulty: hard
+    max_steps: 5
+    scoring: >
+      0.0 to 1.0. All penalties active. Deterioration compounds
+      rapidly. Emergency untreated penalties stack. Agent must
+      prioritize ruthlessly to achieve a score above 0.5.
 
 server:
   port: 7860
   host: 0.0.0.0
+
+reward_structure:
+  high_severity_treated:    +3.0
+  medium_severity_treated:  +2.0
+  low_severity_treated:     +1.0
+  emergency_treated_bonus:  +1.0
+  high_severity_untreated:  -2.0
+  medium_severity_untreated: -0.5
+  emergency_untreated_extra: -1.5
+  wasted_bed_penalty:       -0.3
+  deterioration_penalty:    -0.5
+
+observation_space:
+  beds:        "int — available beds this step"
+  total_beds:  "int — total hospital bed capacity"
+  patients:    "list[Patient] — patients waiting for beds"
+  step:        "int — current step in episode"
+  max_steps:   "int — episode length"
+  difficulty:  "str — easy | medium | hard"
+
+action_space:
+  allocate: "int — number of beds to allocate this step (0 to beds)"
+
+patient_fields:
+  id:            "int — unique patient identifier"
+  severity:      "str — low | medium | high"
+  emergency:     "bool — true if emergency arrival"
+  waiting_steps: "int — steps this patient has been waiting"
+
+environment_dynamics:
+  - Beds restore to full capacity each step (treated patients discharged)
+  - 0-2 new regular patients arrive each step
+  - 20% chance of emergency (high severity) arrival each step
+  - Patients waiting 2+ steps deteriorate: medium -> high
+  - Patients waiting 3+ steps deteriorate: low -> medium
