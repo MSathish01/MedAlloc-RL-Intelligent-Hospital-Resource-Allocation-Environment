@@ -1,4 +1,13 @@
-﻿# Hospital Resource Allocation Environment
+﻿---
+title: Hospital Env
+emoji: 🏥
+colorFrom: red
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
+# Hospital Resource Allocation Environment
 
 A simulation environment for hospital resource allocation using OpenEnv.
 
