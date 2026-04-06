@@ -1,11 +1,13 @@
 ﻿---
 title: MedAlloc RL
+emoji: 🏥
 colorFrom: blue
 colorTo: green
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.x.x
+app_file: app.py
+pinned: false
 ---
-
 # MedAlloc RL
 
 Hospital Resource Allocation...
