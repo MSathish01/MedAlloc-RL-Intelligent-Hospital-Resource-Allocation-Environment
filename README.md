@@ -1,11 +1,15 @@
 ﻿---
-title: hospital-env
-emoji: 
+title: MedAlloc RL
+emoji: hospital
 colorFrom: blue
 colorTo: green
 sdk: docker
 app_port: 7860
 ---
+
+# MedAlloc RL
+
+Hospital Resource Allocation...
 # Hospital Resource Allocation Environment
 
 A simulation environment for hospital resource allocation using OpenEnv.
