@@ -1,4 +1,4 @@
-"""
+﻿"""
 MedAlloc-RL Inference Script
 ----------------------------
 Runs the hospital allocation agent across all 3 task difficulties.
@@ -11,7 +11,7 @@ import requests
 from openai import OpenAI
 
 # -----------------------------------------------
-# REQUIRED ENV VARS — set these in HF Space secrets
+# REQUIRED ENV VARS â€” set these in HF Space secrets
 # -----------------------------------------------
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME   = os.environ.get("MODEL_NAME",   "gpt-4o-mini")
@@ -62,7 +62,7 @@ Your goal: Maximize total reward by deciding how many beds to allocate.
 Always treat emergency and high-severity patients first.
 Do NOT waste beds if patients are waiting.
 
-Reply with ONLY a single integer — the number of beds to allocate.
+Reply with ONLY a single integer â€” the number of beds to allocate.
 No explanation. Just the number."""
 
     try:
@@ -108,7 +108,7 @@ def run_task(task: str) -> float:
     data = res.json()
     obs  = data["observation"]
 
-    # [START] — required by OpenEnv spec
+    # [START] â€” required by OpenEnv spec
     print(json.dumps({
         "[START]":         True,
         "task":            task,
@@ -136,7 +136,7 @@ def run_task(task: str) -> float:
         final_score  = score
         step_num    += 1
 
-        # [STEP] — required by OpenEnv spec
+        # [STEP] â€” required by OpenEnv spec
         print(json.dumps({
             "[STEP]":              step_num,
             "action_allocate":     allocate,
@@ -152,7 +152,7 @@ def run_task(task: str) -> float:
         if done:
             break
 
-    # [END] — required by OpenEnv spec
+    # [END] â€” required by OpenEnv spec
     print(json.dumps({
         "[END]":        True,
         "task":         task,
@@ -169,7 +169,7 @@ def run_task(task: str) -> float:
 # -----------------------------------------------
 if __name__ == "__main__":
     print("=" * 50)
-    print("MedAlloc-RL — Hospital Resource Allocation")
+    print("MedAlloc-RL â€” Hospital Resource Allocation")
     print("=" * 50)
 
     all_scores = {}

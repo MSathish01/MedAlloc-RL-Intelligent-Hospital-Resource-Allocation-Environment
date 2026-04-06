@@ -1,4 +1,4 @@
-name: hospital_env
+﻿name: hospital_env
 version: 2.0.0
 description: >
   MedAlloc-RL: Hospital Resource Allocation Reinforcement Learning Environment.
@@ -11,7 +11,7 @@ tasks:
     name: Basic Allocation
     description: >
       5 patients, 10 beds. Agent learns priority-based allocation.
-      Plenty of beds available — focus is on learning to treat
+      Plenty of beds available â€” focus is on learning to treat
       high-severity patients first.
     difficulty: easy
     max_steps: 5
@@ -35,7 +35,7 @@ tasks:
   - id: hard
     name: Crisis Mode
     description: >
-      10 patients, 5 beds. Severe scarcity — agent must make tough
+      10 patients, 5 beds. Severe scarcity â€” agent must make tough
       triage decisions. Emergency arrivals, patient deterioration,
       and dynamic new arrivals make this highly challenging.
     difficulty: hard
@@ -61,21 +61,21 @@ reward_structure:
   deterioration_penalty:    -0.5
 
 observation_space:
-  beds:        "int — available beds this step"
-  total_beds:  "int — total hospital bed capacity"
-  patients:    "list[Patient] — patients waiting for beds"
-  step:        "int — current step in episode"
-  max_steps:   "int — episode length"
-  difficulty:  "str — easy | medium | hard"
+  beds:        "int â€” available beds this step"
+  total_beds:  "int â€” total hospital bed capacity"
+  patients:    "list[Patient] â€” patients waiting for beds"
+  step:        "int â€” current step in episode"
+  max_steps:   "int â€” episode length"
+  difficulty:  "str â€” easy | medium | hard"
 
 action_space:
-  allocate: "int — number of beds to allocate this step (0 to beds)"
+  allocate: "int â€” number of beds to allocate this step (0 to beds)"
 
 patient_fields:
-  id:            "int — unique patient identifier"
-  severity:      "str — low | medium | high"
-  emergency:     "bool — true if emergency arrival"
-  waiting_steps: "int — steps this patient has been waiting"
+  id:            "int â€” unique patient identifier"
+  severity:      "str â€” low | medium | high"
+  emergency:     "bool â€” true if emergency arrival"
+  waiting_steps: "int â€” steps this patient has been waiting"
 
 environment_dynamics:
   - Beds restore to full capacity each step (treated patients discharged)

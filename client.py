@@ -1,4 +1,4 @@
-import requests
+﻿import requests
 
 
 class HospitalEnvClient:
@@ -51,16 +51,16 @@ if __name__ == "__main__":
 
     env = HospitalEnvClient(BASE_URL)
 
-    print("🔄 Resetting environment...")
+    print("ðŸ”„ Resetting environment...")
     result = env.reset()
     print(result)
 
-    print("\n➡ Taking action: allocate = 2")
+    print("\nâž¡ Taking action: allocate = 2")
     step_result = env.step(2)
     print(step_result)
 
-    print("\n📊 Current state:")
+    print("\nðŸ“Š Current state:")
     print(env.state())
 
-    print("\n💚 Health check:")
+    print("\nðŸ’š Health check:")
     print(env.health())

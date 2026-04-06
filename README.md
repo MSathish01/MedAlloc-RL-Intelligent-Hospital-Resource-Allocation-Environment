@@ -1,6 +1,6 @@
----
+﻿---
 title: hospital-env
-emoji: 🏥
+emoji: 
 colorFrom: blue
 colorTo: green
 sdk: docker

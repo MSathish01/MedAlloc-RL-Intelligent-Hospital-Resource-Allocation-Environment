@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+﻿from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List
@@ -177,7 +177,7 @@ def step(action: Action):
         or len(state_data["patients"]) == 0
     )
 
-    # Normalized score 0.0 → 1.0
+    # Normalized score 0.0 â†’ 1.0
     max_possible = state_data["total_beds"] * 3.0 * state_data["max_steps"]
     score = round(max(0.0, min(1.0, state_data["total_reward"] / max_possible)), 3)
 
@@ -266,23 +266,23 @@ def web_ui():
         </style>
       </head>
       <body>
-        <h1>🏥 MedAlloc-RL</h1>
-        <p>Hospital Resource Allocation — Reinforcement Learning Environment</p>
+        <h1>ðŸ¥ MedAlloc-RL</h1>
+        <p>Hospital Resource Allocation â€” Reinforcement Learning Environment</p>
         <h3>Features</h3>
         <ul>
-          <li>🚑 Priority-based patient triage (low / medium / high)</li>
-          <li>⚡ Emergency patient arrivals (20% per step)</li>
-          <li>📈 Patient deterioration over time</li>
-          <li>⏱ Time pressure with step limits</li>
-          <li>📊 Normalized scoring 0.0 → 1.0</li>
-          <li>🎯 3 difficulty levels: easy / medium / hard</li>
+          <li>ðŸš‘ Priority-based patient triage (low / medium / high)</li>
+          <li>âš¡ Emergency patient arrivals (20% per step)</li>
+          <li>ðŸ“ˆ Patient deterioration over time</li>
+          <li>â± Time pressure with step limits</li>
+          <li>ðŸ“Š Normalized scoring 0.0 â†’ 1.0</li>
+          <li>ðŸŽ¯ 3 difficulty levels: easy / medium / hard</li>
         </ul>
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="/docs">📖 API Docs (Swagger)</a></li>
-          <li><a href="/health">💚 Health Check</a></li>
-          <li><a href="/state">📋 Current State</a></li>
-          <li><a href="/grade">🏆 Current Grade</a></li>
+          <li><a href="/docs">ðŸ“– API Docs (Swagger)</a></li>
+          <li><a href="/health">ðŸ’š Health Check</a></li>
+          <li><a href="/state">ðŸ“‹ Current State</a></li>
+          <li><a href="/grade">ðŸ† Current Grade</a></li>
         </ul>
         <h3>Reward System</h3>
         <span class="badge high">High severity treated: +3.0</span>
