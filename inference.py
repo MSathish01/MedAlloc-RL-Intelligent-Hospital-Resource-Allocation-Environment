@@ -1,6 +1,6 @@
 ﻿"""
 MedAlloc-RL Inference Script
-Output format: [START]/[STEP]/[END] plain text as required by evaluator
+Output: [START]/[STEP]/[END] plain text format required by evaluator
 """
 
 import os
@@ -8,12 +8,12 @@ import re
 import requests
 from openai import OpenAI
 
-# Required env vars
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME   = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 HF_TOKEN     = os.environ.get("HF_TOKEN", "")
 
 ENV_URL = "https://msathish-hospital-env.hf.space"
+
 client = OpenAI(
     base_url=API_BASE_URL,
     api_key=HF_TOKEN if HF_TOKEN else "sk-placeholder",
@@ -23,6 +23,8 @@ client = OpenAI(
 def get_action(observation: dict) -> int:
     patients = observation.get("patients", [])
     beds = observation.get("beds", 0)
+    if not patients or beds == 0:
+        return 0
 
     high = sum(1 for p in patients if p["severity"] == "high")
     medium = sum(1 for p in patients if p["severity"] == "medium")
@@ -31,7 +33,7 @@ def get_action(observation: dict) -> int:
     prompt = f"""You are a hospital resource allocation agent.
 Available beds: {beds}
 Patients waiting: {len(patients)} (high={high}, medium={medium}, emergency={emergency})
-Reply with ONLY a single integer - number of beds to allocate."""
+Reply with ONLY a single integer - number of beds to allocate. Prioritize high severity."""
 
     try:
         response = client.chat.completions.create(
@@ -47,7 +49,7 @@ Reply with ONLY a single integer - number of beds to allocate."""
     except Exception:
         pass
 
-    # Fallback: greedy
+    # Greedy fallback
     high_p = [p for p in patients if p["severity"] == "high" or p.get("emergency")]
     if high_p:
         return min(len(high_p), beds)
@@ -58,37 +60,47 @@ Reply with ONLY a single integer - number of beds to allocate."""
 
 
 def run_task(task: str) -> float:
+    # Reset
     res = requests.post(f"{ENV_URL}/reset", params={"task": task}, timeout=30)
+    res.raise_for_status()
     data = res.json()
     obs = data["observation"]
 
     print(f"[START] task={task}", flush=True)
 
     step_num = 0
-    total_reward = 0.0
     final_score = 0.0
 
     while True:
         allocate = get_action(obs)
 
-        res = requests.post(f"{ENV_URL}/step", json={"allocate": allocate}, timeout=30)
-        data = res.json()
+        step_res = requests.post(
+            f"{ENV_URL}/step",
+            json={"allocate": allocate},
+            timeout=30
+        )
+        step_res.raise_for_status()
+        step_data = step_res.json()
 
-        obs = data["observation"]
-        reward = data["reward"]
-        score = data["score"]
-        done = data["done"]
-        total_reward += reward
-        final_score = score
+        # Safe extraction with defaults
+        obs      = step_data.get("observation", obs)
+        reward   = float(step_data.get("reward", 0.0))
+        score    = float(step_data.get("score", 0.0))
+        done     = bool(step_data.get("done", False))
         step_num += 1
+        final_score = score
 
         print(f"[STEP] step={step_num} reward={reward:.2f} score={score:.3f} action=allocate({allocate}) done={str(done).lower()}", flush=True)
 
         if done:
             break
 
-    print(f"[END] task={task} score={final_score:.3f} steps={step_num}", flush=True)
+        # Safety: never run more than max_steps
+        max_steps = obs.get("max_steps", 5) if isinstance(obs, dict) else 5
+        if step_num >= max_steps:
+            break
 
+    print(f"[END] task={task} score={final_score:.3f} steps={step_num}", flush=True)
     return final_score
 
 
@@ -104,4 +116,4 @@ if __name__ == "__main__":
             all_scores[task] = 0.0
 
     avg = sum(all_scores.values()) / len(all_scores)
-    print(f"[SUMMARY] easy={all_scores.get('easy', 0):.3f} medium={all_scores.get('medium', 0):.3f} hard={all_scores.get('hard', 0):.3f} avg={avg:.3f}", flush=True)
+    print(f"[SUMMARY] easy={all_scores.get('easy',0):.3f} medium={all_scores.get('medium',0):.3f} hard={all_scores.get('hard',0):.3f} avg={avg:.3f}", flush=True)
