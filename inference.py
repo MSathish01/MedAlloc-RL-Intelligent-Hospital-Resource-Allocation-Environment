@@ -56,7 +56,7 @@ def api_call(method, url, **kwargs):
     raise Exception("API failed")
 
 # -------------------------------
-# ACTION LOGIC (LLM + fallback)
+# ACTION LOGIC
 # -------------------------------
 def get_action(obs):
     patients = obs.get("patients", [])
@@ -65,13 +65,9 @@ def get_action(obs):
     if beds == 0 or not patients:
         return 0
 
-    prompt = f"""
-Beds: {beds}
-Patients: {len(patients)}
-Decide allocation number. Return ONLY integer.
-"""
-
+    # LLM try
     try:
+        prompt = f"Beds: {beds}, Patients: {len(patients)}. Return only number."
         res = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
@@ -113,9 +109,11 @@ def run_task(task):
 
         obs = data["observation"]
         done = False
+        max_steps = obs.get("max_steps", 5)
 
-        while not done:
-            # 🔥 STOP if no patients (critical fix)
+        while not done and steps < max_steps:
+
+            # 🔥 STOP if no patients
             if len(obs.get("patients", [])) == 0:
                 break
 
@@ -182,8 +180,8 @@ if __name__ == "__main__":
         try:
             score = run_task(task)
             all_scores[task] = safe_score(score)
-        except Exception as e:
+        except Exception:
             print("[END] success=false steps=0 rewards=", flush=True)
             all_scores[task] = 0.001
 
-    final = sum(all_scores.values()) / len(all_scores)
+    final_score = sum(all_scores.values()) / len(all_scores)
