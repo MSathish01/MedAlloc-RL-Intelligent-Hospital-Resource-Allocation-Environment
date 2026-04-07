@@ -177,22 +177,10 @@ def step(action: Action):
         or len(state_data["patients"]) == 0
     )
 
-    # Normalized score 0.0 â†’ 1.0
-max_possible = max(1.0, state_data["total_beds"] * 3.0)
-score = round(max(0.0, min(1.0, state_data["total_reward"] / max_possible)), 3)
-
-    return {
-        "observation": _clean_obs(state_data),
-        "reward":      round(reward, 2),
-        "score":       score,
-        "done":        done,
-        "info": {
-            "step":            state_data["step"],
-            "treated_total":   state_data["treated_count"],
-            "emergencies_seen": state_data["emergency_count"],
-            "total_reward":    round(state_data["total_reward"], 2),
-        }
-    }
+# Normalized score 0.0 → 1.0
+    max_possible = max(1.0, state_data["total_beds"] * 3.0)
+    score = round(max(0.0, min(1.0, state_data["total_reward"] / max_possible)), 3)
+    return { }
 
 # -------------------------------
 # GRADER  (judges call this)
