@@ -4,6 +4,9 @@ import time
 import requests
 from openai import OpenAI
 
+# -------------------------------
+# ENV CONFIG
+# -------------------------------
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME   = os.getenv("MODEL_NAME", "gpt-4o-mini")
 HF_TOKEN     = os.getenv("HF_TOKEN")
@@ -14,7 +17,6 @@ client = OpenAI(
     base_url=API_BASE_URL,
     api_key=HF_TOKEN or "sk-placeholder",
 )
-
 
 # -------------------------------
 # WAKE SPACE
@@ -29,7 +31,6 @@ def wake_up_space():
             pass
         time.sleep(5)
     return False
-
 
 # -------------------------------
 # SAFE API CALL
@@ -53,7 +54,6 @@ def api_call(method, url, **kwargs):
             time.sleep(3)
 
     raise Exception("API failed")
-
 
 # -------------------------------
 # ACTION LOGIC (LLM + fallback)
@@ -88,15 +88,14 @@ Decide allocation number. Return ONLY integer.
     except:
         pass
 
+    # fallback
     return min(len(patients), beds)
-
 
 # -------------------------------
 # SAFE SCORE
 # -------------------------------
 def safe_score(x):
     return max(0.000001, min(0.999999, x))
-
 
 # -------------------------------
 # RUN TASK
@@ -115,9 +114,12 @@ def run_task(task):
         obs = data["observation"]
         done = False
 
-        while not done and steps < 10:
-            steps += 1
+        while not done:
+            # 🔥 STOP if no patients (critical fix)
+            if len(obs.get("patients", [])) == 0:
+                break
 
+            steps += 1
             action = get_action(obs)
 
             try:
@@ -168,7 +170,6 @@ def run_task(task):
 
     return score
 
-
 # -------------------------------
 # MAIN
 # -------------------------------
@@ -182,10 +183,7 @@ if __name__ == "__main__":
             score = run_task(task)
             all_scores[task] = safe_score(score)
         except Exception as e:
-            print(
-                f"[END] success=false steps=0 rewards=",
-                flush=True
-            )
+            print("[END] success=false steps=0 rewards=", flush=True)
             all_scores[task] = 0.001
 
     final = sum(all_scores.values()) / len(all_scores)
