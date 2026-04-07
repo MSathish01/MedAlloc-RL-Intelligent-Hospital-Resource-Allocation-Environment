@@ -1,9 +1,4 @@
-﻿[project]
+[project]
 name = "hospital-env"
 version = "2.0.0"
-description = "Hospital Resource Allocation RL Environment"
 requires-python = ">=3.10"
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.backends.legacy:build"
