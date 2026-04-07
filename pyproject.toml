@@ -1,4 +1,4 @@
-﻿Set-Content pyproject.toml '[project]
+﻿[project]
 name = "hospital-env"
 version = "2.0.0"
 description = "Hospital Resource Allocation RL Environment"
@@ -9,4 +9,4 @@ fastapi = ">=0.104.0"
 uvicorn = ">=0.24.0"
 requests = ">=2.25.0"
 pydantic = ">=2.0.0"
-openai = ">=1.0.0"'
+openai = ">=1.0.0"
