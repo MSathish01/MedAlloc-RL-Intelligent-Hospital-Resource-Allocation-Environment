@@ -178,7 +178,8 @@ def step(action: Action):
     )
 
     # Normalized score 0.0 â†’ 1.0
-max_possible = max(1.0, state_data["total_beds"] * 3.0)    score = round(max(0.0, min(1.0, state_data["total_reward"] / max_possible)), 3)
+max_possible = max(1.0, state_data["total_beds"] * 3.0)
+score = round(max(0.0, min(1.0, state_data["total_reward"] / max_possible)), 3)
 
     return {
         "observation": _clean_obs(state_data),
