@@ -1,10 +1,10 @@
 ﻿---
-title: Hospital Env
+title: hospital-env
 emoji: 🏥
-colorFrom: red
-colorTo: blue
+colorFrom: blue
+colorTo: green
 sdk: docker
-pinned: false
+app_port: 7860
 ---
 
 # Hospital Resource Allocation Environment
