@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 from typing import List
@@ -724,14 +724,14 @@ def _interactive_html() -> str:
                 stepBtn.disabled = true;
                 const task = taskEl.value;
                 try {
-                    const res = await fetch(\`/reset?task=\${encodeURIComponent(task)}\`, { method: 'POST' });
+                    const res = await fetch(`/reset?task=${encodeURIComponent(task)}`, { method: 'POST' });
                     const data = await res.json();
                     if (data.observation) {
                         setDone(false);
                         setObs(data.observation);
                         allocateEl.value = String(lastRecommendation);
                         stepBtn.disabled = false;
-                        lastEl.textContent = 'Environment Ready.\n\n' + pretty(data);
+                        lastEl.textContent = 'Environment Ready.\\n\\n' + pretty(data);
                     } else {
                         lastEl.textContent = pretty(data);
                         setBanner('Reset failed. Check System Log.');
@@ -771,7 +771,7 @@ def _interactive_html() -> str:
                         try {
                             const gradeRes = await fetch('/grade');
                             const grade = await gradeRes.json();
-                            lastEl.textContent = 'FINAL REPORT\n==========\n\n' + pretty({ ...data, final_grade: grade });
+                            lastEl.textContent = 'FINAL REPORT\\n==========\\n\\n' + pretty({ ...data, final_grade: grade });
                         } catch (e) {}
                         return;
                     }
